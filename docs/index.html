@@ -472,7 +472,7 @@ async function check(){
     showErr("That doesn't look like an address — expected 0x + 40 hex characters."); return;
   }
   $("go").textContent = "Checking…"; $("go").disabled = true;
-  try{
+  const lookup = async () => {
     const screened = await registry.isScreened(addr);
     const res = $("result"); res.classList.remove("show"); void res.offsetWidth;
     if(!screened){
@@ -500,6 +500,10 @@ async function check(){
         link(`${EXPLORER}/address/${addr}`,"token on Pharos Scan");
     }
     res.classList.add("show");
+  };
+  try{
+    try{ await lookup(); }
+    catch(e){ await new Promise(r => setTimeout(r, 1200)); await lookup(); }
   }catch(e){
     showErr("Couldn't reach the Atlantic RPC from this browser. The registry is still live — verify with: cast call "+REGISTRY+" \"isScreened(address)(bool)\" "+addr+" --rpc-url "+RPC);
   }finally{
@@ -509,7 +513,7 @@ async function check(){
 const kv = (k,v) => `<div class="k">${k}</div><div class="v">${v}</div>`;
 const mono = a => `<a href="${EXPLORER}/address/${a}">${short(a)}</a>`;
 const link = (h,t) => `<a href="${h}">${t} ↗</a>`;
-function showErr(m){ $("err").textContent = m; $("err").style.display="block"; }
+function showErr(m){ $("result").classList.remove("show"); $("err").textContent = m; $("err").style.display="block"; }
 
 $("go").addEventListener("click", check);
 $("addr").addEventListener("keydown", e => { if(e.key==="Enter") check(); });
