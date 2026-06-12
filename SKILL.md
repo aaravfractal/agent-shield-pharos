@@ -65,6 +65,11 @@ Load the corresponding reference file based on user needs to get full command te
 | One-click ERC20 deploy | `forge script` + built-in ERC20 template | → `references/contract.md#erc20-one-click-deploy-built-in-template` |
 | Batch transfer / Airdrop | `forge script` (auto-generate airdrop script, supports 6000+ address batched airdrop, CSV file input, three-tier auto mode: ≤10 simple mode / 11-200 single batch / >200 multi-batch, hardened Distributor contract) | → `references/transaction.md#batch-transfer--airdrop` |
 | Generate contract interaction scripts (read/write methods, JS/TS/Python) | Script_Generator (Agent auto-generates) | → `references/script-gen.md` |
+| Is this token safe / scam check / honeypot check / rug check / should my agent buy this | Agent Shield: screen token + on-chain attestation | → `references/agent-shield.md#screen-a-token-composite-workflow` |
+| Check token before swap/approve/transfer / has this token been screened | `cast call` isScreened / isSafe / isFlagged / getAttestation | → `references/agent-shield.md#check-a-token-before-interacting-read-only-pre-flight` |
+| Request a token screening / fund a screening bounty | `cast send` fundScreening() payable | → `references/agent-shield.md#fund-a-screening-bounty` |
+| Show screening history / recent screenings of a token | `cast logs` TokenScreened | → `references/agent-shield.md#query-screening-events` |
+| Deploy the Agent Shield registry | `forge create` AgentShieldRegistry | → `references/agent-shield.md#deploy-agentshieldregistry` |
 
 ## General Error Handling
 
