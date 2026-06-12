@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent Shield — Token-Trust Registry on Pharos</title>
+<meta name="description" content="Check any token against the live on-chain Agent Shield registry on Pharos Atlantic. ALLOW / WARN / BLOCK verdicts, readable by any AI agent.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0A0E1A; --panel:#111726; --panel-2:#0D1320; --line:#1E2840;
+    --text:#E8ECF5; --muted:#8A94AD;
+    --allow:#2EE6A8; --warn:#FFB454; --block:#FF5470; --accent:#5B79FF;
+    --mono:'IBM Plex Mono',ui-monospace,monospace;
+    --disp:'Space Grotesk',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{background:var(--ink);color:var(--text);font-family:var(--disp);line-height:1.55;
+       background-image:radial-gradient(ellipse 80% 50% at 50% -10%, rgba(91,121,255,.13), transparent);}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+  .wrap{max-width:880px;margin:0 auto;padding:0 20px}
+
+  /* header */
+  header{display:flex;justify-content:space-between;align-items:center;padding:22px 0}
+  .brand{display:flex;gap:10px;align-items:center;font-weight:700;font-size:18px;letter-spacing:.2px}
+  .brand .glyph{width:30px;height:30px;display:grid;place-items:center;border:1.5px solid var(--accent);
+    border-radius:8px;color:var(--accent);font-size:15px}
+  .gh{font-family:var(--mono);font-size:13px;color:var(--muted)}
+
+  /* hero = the checker itself */
+  .hero{padding:48px 0 12px;text-align:center}
+  .hero h1{font-size:clamp(30px,5.5vw,52px);font-weight:700;letter-spacing:-.02em;line-height:1.08}
+  .hero h1 em{font-style:normal;color:var(--accent)}
+  .hero p.sub{color:var(--muted);margin:14px auto 0;max-width:560px;font-size:16px}
+  .ticker{display:inline-flex;gap:8px;align-items:center;margin-top:18px;font-family:var(--mono);
+    font-size:13px;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:6px 14px}
+  .ticker .dot{width:7px;height:7px;border-radius:50%;background:var(--allow);animation:pulse 2s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+  @media (prefers-reduced-motion:reduce){.ticker .dot{animation:none}}
+
+  /* checker */
+  .checker{margin:34px auto 0;max-width:640px}
+  .row{display:flex;gap:10px}
+  input[type=text]{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:12px;
+    color:var(--text);font-family:var(--mono);font-size:14px;padding:15px 16px;outline:none}
+  input[type=text]:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(91,121,255,.18)}
+  button.check{background:var(--accent);border:none;border-radius:12px;color:#fff;font-family:var(--disp);
+    font-weight:700;font-size:15px;padding:0 26px;cursor:pointer}
+  button.check:hover{filter:brightness(1.1)}
+  button.check:focus-visible,input:focus-visible,.chip:focus-visible{outline:2px solid var(--allow);outline-offset:2px}
+  .samples{display:flex;gap:8px;justify-content:center;margin-top:12px;flex-wrap:wrap}
+  .chip{background:none;border:1px solid var(--line);color:var(--muted);font-family:var(--mono);font-size:12px;
+    border-radius:999px;padding:6px 12px;cursor:pointer}
+  .chip:hover{color:var(--text);border-color:var(--accent)}
+
+  /* result card + stamp signature */
+  .result{margin:26px auto 0;max-width:640px;background:var(--panel);border:1px solid var(--line);
+    border-radius:16px;padding:26px;display:none;position:relative;overflow:hidden;text-align:left}
+  .result.show{display:block}
+  .stamp{position:absolute;top:18px;right:18px;font-family:var(--mono);font-weight:600;font-size:22px;
+    letter-spacing:.18em;padding:8px 18px;border:3px solid;border-radius:6px;transform:rotate(8deg);
+    opacity:0;}
+  .show .stamp{animation:stampIn .35s cubic-bezier(.2,1.6,.4,1) forwards}
+  @keyframes stampIn{from{transform:rotate(8deg) scale(2.2);opacity:0}to{transform:rotate(8deg) scale(1);opacity:1}}
+  @media (prefers-reduced-motion:reduce){.show .stamp{animation:none;opacity:1}}
+  .stamp.ALLOW{color:var(--allow);border-color:var(--allow)}
+  .stamp.WARN{color:var(--warn);border-color:var(--warn)}
+  .stamp.BLOCK{color:var(--block);border-color:var(--block)}
+  .stamp.UNSCREENED{color:var(--muted);border-color:var(--muted);font-size:15px}
+  .result h3{font-size:13px;color:var(--muted);font-weight:500;text-transform:uppercase;letter-spacing:.1em}
+  .kv{display:grid;grid-template-columns:130px 1fr;gap:8px 14px;margin-top:14px;font-family:var(--mono);font-size:13.5px}
+  .kv .k{color:var(--muted)}
+  .kv .v{word-break:break-all}
+  .scorebar{height:8px;border-radius:99px;background:var(--panel-2);margin-top:6px;overflow:hidden;max-width:260px}
+  .scorebar i{display:block;height:100%;border-radius:99px}
+  .reasons{margin-top:6px;display:flex;gap:6px;flex-wrap:wrap}
+  .tag{font-family:var(--mono);font-size:11.5px;border:1px solid var(--line);border-radius:6px;padding:3px 8px;color:var(--muted)}
+  .result .links{margin-top:18px;font-family:var(--mono);font-size:13px}
+  .err{margin-top:14px;font-family:var(--mono);font-size:13px;color:var(--warn);display:none}
+
+  /* how it works */
+  section.how{margin-top:84px}
+  .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.18em;color:var(--accent);text-transform:uppercase}
+  section.how h2,.integrate h2{font-size:26px;margin-top:8px;letter-spacing:-.01em}
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:24px}
+  .step{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px}
+  .step b{display:block;font-size:16px;margin-bottom:6px}
+  .step p{color:var(--muted);font-size:14px}
+  .step .mono{font-family:var(--mono);font-size:12.5px;color:var(--accent)}
+
+  /* integrate */
+  .integrate{margin-top:72px}
+  pre{margin-top:18px;background:var(--panel-2);border:1px solid var(--line);border-radius:14px;
+    padding:18px;font-family:var(--mono);font-size:12.5px;overflow-x:auto;color:#C7D2F0;line-height:1.7}
+  .copy{margin-top:10px}
+
+  footer{margin:88px 0 40px;border-top:1px solid var(--line);padding-top:22px;display:flex;
+    justify-content:space-between;flex-wrap:wrap;gap:10px;font-family:var(--mono);font-size:12.5px;color:var(--muted)}
+
+  @media(max-width:680px){
+    .steps{grid-template-columns:1fr}
+    .row{flex-direction:column}
+    button.check{padding:14px}
+    .kv{grid-template-columns:1fr}
+    .kv .k{margin-top:6px}
+    .stamp{position:static;display:inline-block;margin-bottom:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="brand"><span class="glyph">🛡</span> Agent Shield</div>
+  <a class="gh" href="https://github.com/aaravfractal/agent-shield-pharos">github ↗</a>
+</header>
+
+<div class="hero">
+  <h1>Agents can't smell scams.<br><em>Now they can.</em></h1>
+  <p class="sub">The on-chain token-trust registry for AI agents on Pharos. Screen once, attest on-chain, every agent verifies in one free call.</p>
+  <div class="ticker"><span class="dot"></span><span id="ticker-text">connecting to Atlantic testnet…</span></div>
+
+  <div class="checker">
+    <div class="row">
+      <input id="addr" type="text" spellcheck="false" placeholder="paste a token address (0x…)" aria-label="Token address">
+      <button class="check" id="go">Check trust</button>
+    </div>
+    <div class="samples">
+      <button class="chip" data-addr="0x1Fc0Bf04e9531B905037E49B65f96De25435D5E2">try the rug we caught</button>
+      <button class="chip" data-addr="0x5ad1d58B95bb0FaF03499beF303788c73ba8aCe7">try the registry itself</button>
+    </div>
+  </div>
+
+  <div class="result" id="result" aria-live="polite">
+    <div class="stamp" id="stamp">—</div>
+    <h3>On-chain attestation</h3>
+    <div class="kv" id="kv"></div>
+    <div class="links" id="links"></div>
+  </div>
+  <div class="err" id="err"></div>
+</div>
+
+<section class="how">
+  <div class="eyebrow">How it works</div>
+  <h2>Trust as shared infrastructure</h2>
+  <div class="steps">
+    <div class="step"><b>Screen</b><p>An agent gathers risk intel — GoPlus security data plus on-chain heuristics — and computes a deterministic <span class="mono">0–100</span> score.</p></div>
+    <div class="step"><b>Attest</b><p>The verdict is written to the registry on Pharos: <span class="mono">ALLOW / WARN / BLOCK</span>, with reasons. Permanent, public, no admin key.</p></div>
+    <div class="step"><b>Reuse</b><p>Every other agent reads the attestation in one free view call instead of re-screening. Unknown ≠ safe. Screenings can carry PHRS bounties, auto-paid to attesters.</p></div>
+  </div>
+</section>
+
+<section class="integrate">
+  <div class="eyebrow">Integrate</div>
+  <h2>One line, any agent</h2>
+  <pre id="snippet">cast call 0x5ad1d58B95bb0FaF03499beF303788c73ba8aCe7 \
+  "isSafe(address)(bool)" &lt;token&gt; \
+  --rpc-url https://atlantic.dplabs-internal.com</pre>
+  <button class="chip copy" id="copyBtn">copy command</button>
+</section>
+
+<footer>
+  <span>contract <a href="https://atlantic.pharosscan.xyz/address/0x5ad1d58B95bb0FaF03499beF303788c73ba8aCe7">0x5ad1…aCe7</a> · chain 688689 · verified ✓</span>
+  <span><a href="https://github.com/aaravfractal/agent-shield-pharos">GitHub</a> · <a href="https://dorahacks.io/hackathon/pharos-phase1">Pharos Skill Hackathon</a></span>
+</footer>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.2/ethers.umd.min.js"></script>
+<script>
+const RPC = "https://atlantic.dplabs-internal.com";
+const REGISTRY = "0x5ad1d58B95bb0FaF03499beF303788c73ba8aCe7";
+const EXPLORER = "https://atlantic.pharosscan.xyz";
+const ABI = [
+  "function totalAttestations() view returns (uint256)",
+  "function isScreened(address) view returns (bool)",
+  "function getAttestation(address) view returns (address attester,uint8 score,uint8 verdict,string reasons,uint64 timestamp,uint32 revision)"
+];
+const VERDICT = {1:"ALLOW",2:"WARN",3:"BLOCK"};
+const COLOR  = {ALLOW:"var(--allow)",WARN:"var(--warn)",BLOCK:"var(--block)"};
+
+let provider, registry;
+function init(){
+  provider = new ethers.JsonRpcProvider(RPC, undefined, {staticNetwork:true});
+  registry = new ethers.Contract(REGISTRY, ABI, provider);
+  registry.totalAttestations()
+    .then(n => { document.getElementById("ticker-text").textContent =
+      `${n} attestation${n===1n?"":"s"} live on the registry · Atlantic testnet`; })
+    .catch(() => { document.getElementById("ticker-text").textContent =
+      "registry live on Atlantic testnet · counter unavailable in this browser"; });
+}
+init();
+
+const $ = id => document.getElementById(id);
+const short = a => a.slice(0,6)+"…"+a.slice(-4);
+const esc = s => s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+async function check(){
+  const addr = $("addr").value.trim();
+  $("err").style.display="none";
+  if(!/^0x[0-9a-fA-F]{40}$/.test(addr)){
+    showErr("That doesn't look like an address — expected 0x + 40 hex characters."); return;
+  }
+  $("go").textContent = "Checking…"; $("go").disabled = true;
+  try{
+    const screened = await registry.isScreened(addr);
+    const res = $("result"); res.classList.remove("show"); void res.offsetWidth;
+    if(!screened){
+      $("stamp").textContent = "UNSCREENED";
+      $("stamp").className = "stamp UNSCREENED";
+      $("kv").innerHTML = kv("token", mono(addr)) +
+        kv("status","No attestation yet. Unknown is not safe — an agent should run the screening workflow before touching this token.");
+      $("links").innerHTML = link(`${EXPLORER}/address/${addr}`,"view token on Pharos Scan");
+    } else {
+      const a = await registry.getAttestation(addr);
+      const v = VERDICT[Number(a.verdict)] || "?";
+      $("stamp").textContent = v;
+      $("stamp").className = "stamp "+v;
+      const score = Number(a.score);
+      const when = new Date(Number(a.timestamp)*1000).toUTCString();
+      $("kv").innerHTML =
+        kv("token", mono(addr)) +
+        kv("score", `${score} / 100` +
+          `<div class="scorebar"><i style="width:${score}%;background:${COLOR[v]||"var(--muted)"}"></i></div>`) +
+        kv("reasons", `<span class="reasons">${a.reasons.split(",").map(r=>`<span class="tag">${esc(r.trim())}</span>`).join("")}</span>`) +
+        kv("attester", mono(a.attester)) +
+        kv("screened", `${when} · revision ${a.revision}`);
+      $("links").innerHTML =
+        link(`${EXPLORER}/address/${REGISTRY}`,"registry on Pharos Scan") + " · " +
+        link(`${EXPLORER}/address/${addr}`,"token on Pharos Scan");
+    }
+    res.classList.add("show");
+  }catch(e){
+    showErr("Couldn't reach the Atlantic RPC from this browser. The registry is still live — verify with: cast call "+REGISTRY+" \"isScreened(address)(bool)\" "+addr+" --rpc-url "+RPC);
+  }finally{
+    $("go").textContent = "Check trust"; $("go").disabled = false;
+  }
+}
+const kv = (k,v) => `<div class="k">${k}</div><div class="v">${v}</div>`;
+const mono = a => `<a href="${EXPLORER}/address/${a}">${short(a)}</a>`;
+const link = (h,t) => `<a href="${h}">${t} ↗</a>`;
+function showErr(m){ $("err").textContent = m; $("err").style.display="block"; }
+
+$("go").addEventListener("click", check);
+$("addr").addEventListener("keydown", e => { if(e.key==="Enter") check(); });
+document.querySelectorAll(".chip[data-addr]").forEach(c =>
+  c.addEventListener("click", () => { $("addr").value = c.dataset.addr; check(); }));
+$("copyBtn").addEventListener("click", async () => {
+  await navigator.clipboard.writeText($("snippet").textContent);
+  $("copyBtn").textContent = "copied ✓";
+  setTimeout(()=>$("copyBtn").textContent="copy command",1500);
+});
+</script>
+</body>
+</html>
