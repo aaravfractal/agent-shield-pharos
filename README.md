@@ -7,6 +7,8 @@
 
 **Contract:** `0x5ad1d58B95bb0FaF03499beF303788c73ba8aCe7` · **Chain:** Atlantic Testnet (688689) · **Status:** ✅ Verified · [Pharos Scan](https://atlantic.pharosscan.xyz/address/0x5ad1d58B95bb0FaF03499beF303788c73ba8aCe7) · [Demo Video](#) (video link coming)
 
+📊 [Pitch Deck](https://github.com/aaravfractal/agent-shield-pharos/blob/main/AgentShield_Deck.pdf) · 🌐 [Live Demo](https://agent-shield.vercel.app) · 𝕏 [@agentshieldhq](https://x.com/agentshieldhq)
+
 ---
 
 ## The Problem
