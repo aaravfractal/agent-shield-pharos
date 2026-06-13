@@ -87,8 +87,7 @@ v1 is **permissionless with recorded attesters** — every attestation carries i
 
 ## Built For
 
-**Pharos × Anvita Flow Skill-to-Agent Dual Cascade Hackathon — Phase 1.**
-Phase 2 preview: **Sentinel**, an autonomous portfolio-guardian agent built on this skill — it watches wallets, screens every token they touch, refuses dangerous transactions, and charges for protection. The skill is the foundation; the agent is the proof.
+Agent Shield — a token-trust layer for autonomous AI agents, built for the Agentic & Autonomous Systems theme. AI agents trade tokens on their own but can't detect scams; Agent Shield lets an agent screen any token, get a 0-100 safety score, and read/write an ALLOW/WARN/BLOCK verdict on-chain in one free call — so it refuses honeypots by itself, no human in the loop. Deployed & verified on Pharos Atlantic. Live demo + working registry included.
 
 ---
 
