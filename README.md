@@ -1,17 +1,11 @@
-<img width="937" height="852" alt="Screenshot 2026-06-14 000556" src="https://github.com/user-attachments/assets/5d2c01e4-cbf3-4ec8-b07d-86304309235d" />
+<img width="937" alt="Agent Shield — BLOCK verdict" src="https://github.com/user-attachments/assets/5d2c01e4-cbf3-4ec8-b07d-86304309235d" />
 
-# 🛡️ Agent Shield — The Token- Trust Layer for Pharos Agents
+# 🛡 Agent Shield — The Token-Trust Layer for Pharos Agents
 
 > **The first on-chain token-trust registry for AI agents on Pharos.**
 > Agents screen tokens before touching them. Verdicts are recorded on-chain as permanent, public attestations. Trust becomes shared, composable infrastructure.
 
-**Contract:** `0x5ad1d58B95bb0FaF03499beF303788c73ba8aCe7` · **Chain:** Atlantic Testnet (688689) · **Status:** ✅ Verified · [Pharos Scan](https://atlantic.pharosscan.xyz/address/0x5ad1d58B95bb0FaF03499beF303788c73ba8aCe7) · [Demo Video]((video link coming))
-
-<img width="937" ... src="...5d2c01e4..." />
-
-# 🛡 Agent Shield — The Token-Trust Layer for Pharos Agents
-
-> **The first on-chain token-trust registry...**
+**Contract:** `0x5ad1d58B95bb0FaF03499beF303788c73ba8aCe7` · **Chain:** Atlantic Testnet (688689) · **Status:** ✅ Verified · [Pharos Scan](https://atlantic.pharosscan.xyz/address/0x5ad1d58B95bb0FaF03499beF303788c73ba8aCe7) · [Demo Video](#) (video link coming)
 
 ---
 
